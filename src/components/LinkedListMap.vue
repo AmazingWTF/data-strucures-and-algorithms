@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div v-for="map in maps" :key="map.id" class="wrapper">
+    <div ref="wrapper" v-for="map in maps" :key="map.id" class="wrapper">
+      <slot />
       <div v-for="(node, index) in map.list" :key="`${map.id}node${index}`" :class="node.type" :style="node.style || {}">
         {{node.val}}
       </div>
@@ -97,6 +98,14 @@ export default {
         top: y
       }
       this.maps[this.maps.length - 1].list.push(node)
+    },
+
+    getWrapperSize () {
+      let wrapper = this.$refs.wrapper[0]
+      return {
+        height: wrapper.scrollHeight,
+        width: wrapper.scrollWidth
+      }
     }
 
   }
