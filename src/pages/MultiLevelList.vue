@@ -1,14 +1,24 @@
 <template>
   <div class="hello">
+    <linked-list-map ref="multiLevelList" title="多层链表" />
   </div>
 </template>
 
 <script>
+import multiLevelListData from './multiLevelListData.json'
+import LinkedListMap from '@/components/LinkedListMap'
+
 export default {
   name: 'MultiLevelList',
+  components: {
+    LinkedListMap
+  },
   data () {
     return {
     }
+  },
+  mounted () {
+    this.$refs.multiLevelList.showMap(multiLevelListData)
   }
 }
 </script>
