@@ -10,6 +10,7 @@ import LinkedListMap from '@/components/LinkedListMap'
 
 export default {
   name: 'MultiLevelList',
+  meta: '多层链表',
   components: {
     LinkedListMap
   },
