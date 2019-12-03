@@ -26,8 +26,6 @@ export default {
   },
   mounted () {
     this.initPaint()
-    // this.drawBezeierLine([100, 100], [200, 100])
-    this.drawBezeierLine([100, 120], [100, 120])
   },
   methods: {
     initPaint () {

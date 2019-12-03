@@ -1,6 +1,11 @@
 <template>
   <div class="hello">
-    <linked-list-map ref="copyRandomKeyList" title="复制random键链表" />
+    <linked-list-map
+      :head="head"
+      @cb="drawRandom"
+      ref="copyRandomKeyList"
+      title="复制random键链表"
+    />
   </div>
 </template>
 
@@ -16,10 +21,17 @@ export default {
   },
   data () {
     return {
+      head: copyRandomKeyListData
     }
   },
   mounted () {
-    this.$refs.copyRandomKeyList.showMap(copyRandomKeyListData)
+  },
+  methods: {
+    drawRandom ({head, coords}) {
+      if (head.random) {
+      } else {
+      }
+    }
   }
 }
 </script>

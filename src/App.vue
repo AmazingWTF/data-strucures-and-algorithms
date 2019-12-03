@@ -35,6 +35,7 @@ export default {
   left: 50%;
   transform: translateX(-50%);
   font-size: 14px;
+  z-index: 10000;
   li {
     background: #e1e1e1;
     line-height: 50px;

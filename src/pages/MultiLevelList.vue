@@ -1,38 +1,26 @@
 <template>
   <div class="hello">
-    <linked-list-map ref="multiLevelList" title="多层链表">
-      <CanvasLineToNode :width="width" :height="height" />
-    </linked-list-map>
+    <linked-list-map ref="multiLevelList" title="多层链表" />
   </div>
 </template>
 
 <script>
 import multiLevelListData from './multiLevelListData.json'
 import LinkedListMap from '@/components/LinkedListMap'
-import CanvasLineToNode from '@/components/CanvasLineToNode.vue'
 
 export default {
   name: 'MultiLevelList',
   meta: '多层链表',
   components: {
-    LinkedListMap,
-    CanvasLineToNode
+    LinkedListMap
   },
   data () {
     return {
-      height: 0,
-      width: 0
     }
   },
   mounted () {
     // 展示链表结构
     this.$refs.multiLevelList.showMap(multiLevelListData)
-    // 展示random键结构
-    this.$nextTick(() => {
-      const {height, width} = this.$refs.multiLevelList.getWrapperSize()
-      this.height = height
-      this.width = width
-    })
   }
 }
 </script>

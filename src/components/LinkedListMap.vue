@@ -1,17 +1,24 @@
 <template>
   <div>
-    <div ref="wrapper" v-for="map in maps" :key="map.id" class="wrapper">
-      <slot />
+    <div :ref="`wrapper${map.id}`" v-for="map in maps" :key="map.id" class="wrapper">
+
+      <CanvasLineToNode v-if="canvasSize[map.id]" ref="can" :width="canvasSize[map.id].width" :height="canvasSize[map.id].height" :radius="40"/>
       <div v-for="(node, index) in map.list" :key="`${map.id}node${index}`" :class="node.type" :style="node.style || {}">
         {{node.val}}
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
+import CanvasLineToNode from '@/components/CanvasLineToNode.vue'
+
 export default {
   name: 'LinkedListMap',
+  components: {
+    CanvasLineToNode
+  },
   props: {
     child_key: {
       type: String,
@@ -20,24 +27,43 @@ export default {
     title: {
       type: String,
       default: () => '链表 X'
+    },
+    head: {
+      type: Object,
+      default: () => ({ val: 0 })
     }
   },
   data () {
     return {
+      canvasSize: [],
       current: [0, 0],
       maps: []
     }
   },
-  created () {
+  mounted () {
+    this.init()
   },
   methods: {
+    init () {
+      this.showMap(this.head)
+    },
+
     showMap (head) {
+      let id = this.maps.length
       this.maps.push({
-        id: this.maps.length,
+        id,
         title: this.title,
         list: []
       })
       this.showByGrap(head)
+
+      this.$nextTick(() => {
+        const {height, width} = this.getWrapperSize(this.$refs[`wrapper${id}`][0])
+        this.canvasSize.push({
+          height,
+          width
+        })
+      })
     },
 
     // 开始展示链表
@@ -45,7 +71,7 @@ export default {
       while (head) {
         let child = head[this.child_key]
         let curX = this.current[0]
-        this.showNext(head.val)
+        this.showNext(head)
         // 处理child
         if (child) {
           this.current[0] -= 1
@@ -60,20 +86,26 @@ export default {
     },
 
     // 处理 next
-    showNext (val = 0) {
+    showNext (head) {
       this.current[0] += 1
-      let [x, y] = this.current.map(e => e * 40 + 'px')
+      let [x, y] = this.current.map(e => e * 40)
 
       this.maps[this.maps.length - 1].list.push({
         type: 'node',
-        val,
+        val: head.val,
         style: {
-          left: x,
-          top: y
+          left: x + 'px',
+          top: y + 'px'
         }
       })
 
       this.showArrow(true)
+      // TODO: 复制random函数完成即可
+      // this.$refs.can.drawBezeierLine()
+      this.$emit('cb', {
+        head,
+        coords: [x, y]
+      })
     },
 
     // 连接线添加
@@ -100,8 +132,7 @@ export default {
       this.maps[this.maps.length - 1].list.push(node)
     },
 
-    getWrapperSize () {
-      let wrapper = this.$refs.wrapper[0]
+    getWrapperSize (wrapper) {
       return {
         height: wrapper.scrollHeight,
         width: wrapper.scrollWidth
@@ -119,7 +150,8 @@ export default {
   width: 100%;
   height: 300px;
   overflow: scroll;
-  border: 1px solid lightgreen;
+  border: 1px solid red;
+  margin-bottom: 10px;
 }
 .wrapper > div {
   position: absolute;
