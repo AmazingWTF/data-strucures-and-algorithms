@@ -10,8 +10,24 @@
 </template>
 
 <script>
-import copyRandomKeyListData from './copyRandomKeyListData.json'
 import LinkedListMap from '@/components/LinkedListMap'
+import { Solution } from '@/scripts/utils'
+
+let n1 = {
+  val: 1,
+  next: null,
+  random: null
+}
+let n2 = {
+  val: 2,
+  next: null,
+  random: null
+}
+
+n1.next = n2
+n1.random = n2
+n2.random = n2
+const copyRandomKeyListData = n1
 
 export default {
   name: 'CopyRandomKeyList',
@@ -21,16 +37,16 @@ export default {
   },
   data () {
     return {
-      head: copyRandomKeyListData
+      head: {}
     }
   },
-  mounted () {
+  created () {
+    let solut = new Solution()
+    let head = solut.copyRandomList(copyRandomKeyListData)
+    this.head = head
   },
   methods: {
     drawRandom ({head, coords}) {
-      if (head.random) {
-      } else {
-      }
     }
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div :ref="`wrapper${map.id}`" v-for="map in maps" :key="map.id" class="wrapper">
+    <div :ref="`wrapper${map.id}`" v-for="(map, idx) in maps" :key="map.id" class="wrapper">
 
-      <CanvasLineToNode v-if="canvasSize[map.id]" ref="can" :width="canvasSize[map.id].width" :height="canvasSize[map.id].height" :radius="40"/>
+      <CanvasLineToNode ref="can" :width="wrapperSize[idx] && wrapperSize[idx].width" v-bind:height="wrapperSize[idx] && wrapperSize[idx].height" :radius="40"/>
       <div v-for="(node, index) in map.list" :key="`${map.id}node${index}`" :class="node.type" :style="node.style || {}">
         {{node.val}}
       </div>
@@ -35,9 +35,16 @@ export default {
   },
   data () {
     return {
-      canvasSize: [],
+      wrapperSize: [0, 0],
       current: [0, 0],
       maps: []
+    }
+  },
+  watch: {
+    current (newVal, oldVal) {
+      if (newVal) {
+        this.wrapperSize = [...newVal.map(e => e * 40)]
+      }
     }
   },
   mounted () {
@@ -57,13 +64,13 @@ export default {
       })
       this.showByGrap(head)
 
-      this.$nextTick(() => {
-        const {height, width} = this.getWrapperSize(this.$refs[`wrapper${id}`][0])
-        this.canvasSize.push({
-          height,
-          width
-        })
-      })
+      // this.$nextTick(() => {
+      //   const {height, width} = this.getWrapperSize(this.$refs[`wrapper${id}`][0])
+      //   this.canvasSize.push({
+      //     height,
+      //     width
+      //   })
+      // })
     },
 
     // 开始展示链表
@@ -102,10 +109,6 @@ export default {
       this.showArrow(true)
       // TODO: 复制random函数完成即可
       // this.$refs.can.drawBezeierLine()
-      this.$emit('cb', {
-        head,
-        coords: [x, y]
-      })
     },
 
     // 连接线添加
@@ -130,13 +133,6 @@ export default {
         top: y
       }
       this.maps[this.maps.length - 1].list.push(node)
-    },
-
-    getWrapperSize (wrapper) {
-      return {
-        height: wrapper.scrollHeight,
-        width: wrapper.scrollWidth
-      }
     }
 
   }
