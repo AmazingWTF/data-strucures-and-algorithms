@@ -3,6 +3,8 @@
 </template>
 
 <script>
+const WRAPPER_PADDING = 50
+
 export default {
   name: 'CanvasLineToNode',
   props: {

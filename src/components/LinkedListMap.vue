@@ -23,6 +23,7 @@ const calcCoords = (arr, x = 0, y = 0) => {
   arr.splice(0, 2, px + x, py + y)
   return arr
 }
+const WRAPPER_PADDING = 50
 
 export default {
   name: 'LinkedListMap',
@@ -51,7 +52,8 @@ export default {
         list: []
       },
 
-      cacheMap: new Map()
+      startMap: new Map(),
+      endMap: new Map()
     }
   },
   watch: {
@@ -74,14 +76,6 @@ export default {
 
     showMap (head) {
       this.showByGrap(head)
-
-      // this.$nextTick(() => {
-      //   const {height, width} = this.getWrapperSize(this.$refs[`wrapper${id}`][0])
-      //   this.canvasSize.push({
-      //     height,
-      //     width
-      //   })
-      // })
     },
 
     // 开始展示链表
@@ -96,7 +90,6 @@ export default {
           this.showByGrap(child)
           calcCoords(this.current, 0, -1)
           calcCoords(this.current, 2)
-        } else {
         }
         head = head.next
       }
@@ -106,6 +99,7 @@ export default {
     showNext (head, index) {
       calcCoords(this.current, 1)
       let [x, y] = this.current.map(e => e * 40)
+      y += WRAPPER_PADDING
 
       this.maps.list.push({
         type: 'node',
@@ -115,12 +109,14 @@ export default {
           top: y + 'px'
         }
       })
-      this.drawRandom(index, head, [x, y])
+      // this.drawRandom(index, head, [x, y])
       this.showArrow(true)
     },
 
     // 连接线添加
     showArrow (isNext) {
+      const [x, y] = this.current
+      // y += WRAPPER_PADDING
       let node = {}
       if (isNext) {
         node.type = 'next'
@@ -144,22 +140,22 @@ export default {
     },
 
     // 缓存
-    drawRandom (index, head, point) {
+    drawRandom (head, point) {
       let _this = this
       if (!head) return
       while (head) {
-        if (!this.cacheMap.has(head)) {
-          this.cacheMap.set(head, point)
+        if (!this.startMap.has(head)) {
+          this.startMap.set(head, point)
         } else {
-          let endPoint = this.cacheMap.get(head)
+          let endPoint = this.startMap.get(head)
           setTimeout(() => {
             _this.$refs.can.drawBezeierLine(point, endPoint)
-            console.log(point, endPoint)
+            // console.log(point, endPoint)
           }, 0)
         }
-        if (head.random) {
-          this.drawRandom(head.random)
-        }
+        // if (head.random) {
+        //   this.drawRandom(head.random, point)
+        // }        
         head = head.next
       }
     }
@@ -170,6 +166,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .wrapper {
+  padding: 50px;
   position: relative;
   width: 100%;
   height: 300px;
