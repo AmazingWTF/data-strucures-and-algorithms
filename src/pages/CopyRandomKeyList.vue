@@ -2,7 +2,6 @@
   <div class="hello">
     <linked-list-map
       :head="head"
-      @cb="drawRandom"
       ref="copyRandomKeyList"
       title="复制random键链表"
     />
@@ -46,8 +45,6 @@ export default {
     this.head = head
   },
   methods: {
-    drawRandom ({head, coords}) {
-    }
   }
 }
 </script>

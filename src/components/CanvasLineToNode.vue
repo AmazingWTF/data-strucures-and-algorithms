@@ -38,13 +38,15 @@ export default {
       const radius = this.radius
       let [startX, startY] = start
       let [endX, endY] = end
+      startX += radius / 2
+      endX += radius / 2
       if (startX === endX && startY === endY) {
-        startX -= radius / 2
+        startX += radius / 4
         endX = startX + radius / 2
       }
-      let distance = (startX + endX) / 2
+      let distance = (startX + endX + radius) / 2
       ctx.beginPath()
-      ctx.moveTo(startX, startY)
+      ctx.moveTo(startX + radius, startY)
       ctx.quadraticCurveTo(distance, startY - radius, endX, endY)
       ctx.stroke()
       // 三角箭头

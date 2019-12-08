@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div :ref="`wrapper${map.id}`" v-for="(map, idx) in maps" :key="map.id" class="wrapper">
+    <div ref="wrapper" class="wrapper">
 
-      <CanvasLineToNode ref="can" :width="wrapperSize[idx] && wrapperSize[idx].width" v-bind:height="wrapperSize[idx] && wrapperSize[idx].height" :radius="40"/>
-      <div v-for="(node, index) in map.list" :key="`${map.id}node${index}`" :class="node.type" :style="node.style || {}">
+      <CanvasLineToNode
+        :radius="40"
+        ref="can"
+        v-bind:width="wrapperSize[0]"
+        v-bind:height="wrapperSize[1]"
+      />
+      <div v-for="(node, index) in maps.list" :key="index" :class="node.type" :style="node.style || {}">
         {{node.val}}
       </div>
 
@@ -13,6 +18,11 @@
 
 <script>
 import CanvasLineToNode from '@/components/CanvasLineToNode.vue'
+const calcCoords = (arr, x = 0, y = 0) => {
+  const [px, py] = arr
+  arr.splice(0, 2, px + x, py + y)
+  return arr
+}
 
 export default {
   name: 'LinkedListMap',
@@ -20,7 +30,7 @@ export default {
     CanvasLineToNode
   },
   props: {
-    child_key: {
+    childKey: {
       type: String,
       default: () => 'child'
     },
@@ -37,13 +47,20 @@ export default {
     return {
       wrapperSize: [0, 0],
       current: [0, 0],
-      maps: []
+      maps: {
+        list: []
+      },
+
+      cacheMap: new Map()
     }
   },
   watch: {
     current (newVal, oldVal) {
       if (newVal) {
-        this.wrapperSize = [...newVal.map(e => e * 40)]
+        const height = 300
+        const width = 1200
+        const [x, y] = newVal.map(e => e * 40)
+        this.wrapperSize.splice(0, 2, x > width ? x : width, y > height ? y : height)
       }
     }
   },
@@ -56,12 +73,6 @@ export default {
     },
 
     showMap (head) {
-      let id = this.maps.length
-      this.maps.push({
-        id,
-        title: this.title,
-        list: []
-      })
       this.showByGrap(head)
 
       // this.$nextTick(() => {
@@ -74,18 +85,17 @@ export default {
     },
 
     // 开始展示链表
-    showByGrap (head) {
+    showByGrap (head, index = 0) {
       while (head) {
-        let child = head[this.child_key]
-        let curX = this.current[0]
-        this.showNext(head)
+        let child = head[this.childKey]
+        this.showNext(head, index)
         // 处理child
         if (child) {
-          this.current[0] -= 1
+          calcCoords(this.current, -1)
           this.showArrow()
           this.showByGrap(child)
-          this.current[1] -= 1
-          this.current[0] = curX + 2
+          calcCoords(this.current, 0, -1)
+          calcCoords(this.current, 2)
         } else {
         }
         head = head.next
@@ -93,11 +103,11 @@ export default {
     },
 
     // 处理 next
-    showNext (head) {
-      this.current[0] += 1
+    showNext (head, index) {
+      calcCoords(this.current, 1)
       let [x, y] = this.current.map(e => e * 40)
 
-      this.maps[this.maps.length - 1].list.push({
+      this.maps.list.push({
         type: 'node',
         val: head.val,
         style: {
@@ -105,10 +115,8 @@ export default {
           top: y + 'px'
         }
       })
-
+      this.drawRandom(index, head, [x, y])
       this.showArrow(true)
-      // TODO: 复制random函数完成即可
-      // this.$refs.can.drawBezeierLine()
     },
 
     // 连接线添加
@@ -116,12 +124,12 @@ export default {
       let node = {}
       if (isNext) {
         node.type = 'next'
-        this.current[0] += 1
+        calcCoords(this.current, 1)
       } else {
         node.type = 'shifter'
-        this.current[1] += 1
+        calcCoords(this.current, 0, 1)
       }
-      this.maps[this.maps.length - 1].list.push(node)
+      this.maps.list.push(node)
       this.calcPoint(node)
     },
 
@@ -132,9 +140,29 @@ export default {
         left: x,
         top: y
       }
-      this.maps[this.maps.length - 1].list.push(node)
-    }
+      this.maps.list.push(node)
+    },
 
+    // 缓存
+    drawRandom (index, head, point) {
+      let _this = this
+      if (!head) return
+      while (head) {
+        if (!this.cacheMap.has(head)) {
+          this.cacheMap.set(head, point)
+        } else {
+          let endPoint = this.cacheMap.get(head)
+          setTimeout(() => {
+            _this.$refs.can.drawBezeierLine(point, endPoint)
+            console.log(point, endPoint)
+          }, 0)
+        }
+        if (head.random) {
+          this.drawRandom(head.random)
+        }
+        head = head.next
+      }
+    }
   }
 }
 </script>
